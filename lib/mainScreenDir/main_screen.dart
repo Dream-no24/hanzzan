@@ -65,11 +65,24 @@ class MainScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          // 우측 사용자 아이콘
-                          Icon(
-                            Icons.person, // 사용자 아이콘
-                            size: 30,
-                            color: Colors.black54,
+                          // 우측 사용자 정보
+                          Row(
+                            children: [
+                              const Text(
+                                'NAME', // 추가된 텍스트
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(width: 5), // 텍스트와 아이콘 간 간격
+                              Icon(
+                                Icons.person, // 사용자 아이콘
+                                size: 30,
+                                color: Colors.black54,
+                              ),
+                            ],
                           ),
                         ],
                       ),
