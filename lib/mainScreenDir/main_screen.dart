@@ -79,12 +79,64 @@ class MainScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // 게시물 내용 (비워둠)
+                    // 게시물 내용 (이미지 배경)
                     Expanded(
-                      child: Center(
-                        child: Text(
-                          '게시물 내용 추가 준비 중...',
-                          style: TextStyle(fontSize: 18, color: Colors.black54),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/ERICA.jpg'), // 이미지 파일 경로
+                            fit: BoxFit.cover, // 이미지를 박스에 맞게 채움
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                            // 좌측 상단 시간 텍스트
+                            Positioned(
+                              left: 10, // 좌측 여백
+                              top: 10, // 상단 여백
+                              child: const Text(
+                                '시간: 12:00 ~ 13:00',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white, // 흰색 텍스트
+                                ),
+                              ),
+                            ),
+                            // 좌측 하단 해시태그 텍스트
+                            Positioned(
+                              left: 10, // 좌측 여백
+                              bottom: 10, // 하단 여백
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '# 시험 전 달릴 사람들',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white, // 흰색 텍스트
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    '# 마지막 불꽃',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white, // 흰색 텍스트
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    '# 장소 역할맥',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white, // 흰색 텍스트
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -98,4 +150,3 @@ class MainScreen extends StatelessWidget {
     );
   }
 }
-
