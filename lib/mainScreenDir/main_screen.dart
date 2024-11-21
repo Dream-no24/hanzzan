@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hanzzan/UserInfo/loginPage/login.dart';
 
 class MainScreen extends StatelessWidget {
   @override
@@ -25,7 +26,11 @@ class MainScreen extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                print('User button pressed');
+                // 사람 모양 버튼을 눌렀을 때 Signup View로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginView()),
+                );
               },
               icon: Icon(Icons.person),
               iconSize: 40,
