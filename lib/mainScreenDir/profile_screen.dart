@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hanzzan/UserInfo/loginPage/login.dart';
 import 'package:hanzzan/mainScreenDir/main_screen.dart';
+import 'package:hanzzan/mainScreenDir/profile_edit_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   void _showLogoutConfirmationDialog(BuildContext context) {
@@ -105,7 +106,12 @@ class ProfileScreen extends StatelessWidget {
                       child: Container(
                         width: 400,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ProfileEditScreen()),
+                            );
+                          },
                           child: Text(
                             "프로필 수정",
                             style: TextStyle(
