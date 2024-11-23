@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../signupPage/signup_view.dart';
 import '../signupPage/signup_viewmodel.dart';
+import 'package:hanzzan/mainScreenDir/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -22,6 +23,15 @@ class _LoginViewState extends State<LoginView> {
       appBar: AppBar(
         title: Text('로그인'),
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainScreen()),
+            ); // 뒤로가기 버튼 클릭 시 메인 화면으로 이동
+          },
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
