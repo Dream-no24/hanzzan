@@ -3,8 +3,17 @@ import 'package:hanzzan/UserInfo/loginPage/login.dart';
 import 'package:hanzzan/mainScreenDir/profile_screen.dart';
 import 'package:hanzzan/mainScreenDir/addPost/addPost.dart';
 
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
 
-class MainScreen extends StatelessWidget {
+class _MainScreenState extends State<MainScreen> {
+  // 게시물의 정보들을 저장하는 리스트
+  // 게시물 추가하기 화면(addPost.dart)에서 입력값 설정 후 추가하기 버튼을 누르면
+  // 입력값들을 모아둔 객체가 여기에 저장됨.
+  List<Post> _posts = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,12 +24,19 @@ class MainScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
-              onPressed: () {
+              onPressed: () async {
                 // 게시물 추가 페이지로 이동
-                Navigator.push(
+                final newPost = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AddPost()),
                 );
+
+                // 게시물 추가 페이지에서 반환된 값이 있을 경우 리스트에 추가
+                if (newPost != null && newPost is Post) {
+                  setState(() {
+                    _posts.add(newPost);
+                  });
+                }
               },
               icon: Icon(Icons.add), // 게시물 추가 아이콘으로 변경
               iconSize: 30,
@@ -57,8 +73,10 @@ class MainScreen extends StatelessWidget {
         color: Colors.white,
         child: ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          itemCount: 6, // 예시로 총 6개의 이미지
+          itemCount: _posts.length, // 게시물 저장 리스트 크기만큼 보여줌
           itemBuilder: (context, index) {
+            final post = _posts[index];
+
             return Container(
               height: 200, // 직사각형 비율 5:2 정도로 설정
               width: double.infinity,
@@ -75,8 +93,9 @@ class MainScreen extends StatelessWidget {
                   Positioned(
                     left: 10, // 좌측 여백
                     top: 10, // 상단 여백
-                    child: const Text(
-                      '시간: 12:00 ~ 13:00',
+                    child: Text(
+                      // 게시물 추가 화면에서 지정한 시간을 표시
+                      post.time,
                       style: TextStyle(
                         fontSize: 18, // 조금 작게 설정
                         fontWeight: FontWeight.w500,
@@ -94,8 +113,9 @@ class MainScreen extends StatelessWidget {
                   Positioned(
                     bottom: 10, // 하단 여백
                     left: 20, // 좌측 여백
-                    child: const Text(
-                      'A+',
+                    child: Text(
+                      // 게시물 추가하기 화면에서 지정한 장소를 표시
+                      post.place,
                       style: TextStyle(
                         fontSize: 40, // 크게 설정
                         fontWeight: FontWeight.bold,
@@ -123,9 +143,11 @@ class MainScreen extends StatelessWidget {
                     bottom: 10, // 하단 여백
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text(
-                          '# 시험 전 달릴 사람들',
+                      children: post.hashtags.map((hashtag) {
+                        return Text(
+                          // 게시물 추가하기 화면에서 지정한 헤시태그를 표시
+                          // 헤시태그가 여러개일 경우 자동으로 한개씩 추가됨.
+                          '# $hashtag',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.white, // 흰색 텍스트
@@ -137,22 +159,8 @@ class MainScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                        ),
-                        const Text(
-                          '# 라스트댄스',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white, // 흰색 텍스트
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Colors.black,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     ),
                   ),
                 ],
@@ -172,16 +180,16 @@ class MainScreen extends StatelessWidget {
   }
 
   Widget _buildFilterButton(BuildContext context) {
-    return FloatingActionButton( // 필터 플로팅 액션 버튼 구현
+    return FloatingActionButton(
       onPressed: () {
         showModalBottomSheet(
           context: context,
           builder: (context) {
             return Container(
-              height: 80, // 아이콘만 보일 정도로 바텀시트 높이 설정
+              height: 80,
               padding: EdgeInsets.symmetric(horizontal: 20.0),
               decoration: BoxDecoration(
-                color: Colors.white, // 배경을 하얀색으로 설정
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -225,7 +233,7 @@ class MainScreen extends StatelessWidget {
   void _showPopupMenu(BuildContext context, String filterType, Offset offset) {
     showMenu(
       context: context,
-      position: RelativeRect.fromLTRB(offset.dx, offset.dy - 80, offset.dx, 0), // 아이콘 위치 기준으로 메뉴 표시, 위로 이동
+      position: RelativeRect.fromLTRB(offset.dx, offset.dy - 80, offset.dx, 0),
       items: [
         PopupMenuItem(
           value: 1,
@@ -240,7 +248,7 @@ class MainScreen extends StatelessWidget {
           child: Text('$filterType 옵션 3'),
         ),
       ],
-      color: Colors.white, // 메뉴의 배경색을 하얀색으로 설정
+      color: Colors.white,
     ).then((value) {
       if (value != null) {
         print('$filterType 옵션 $value 선택됨');
