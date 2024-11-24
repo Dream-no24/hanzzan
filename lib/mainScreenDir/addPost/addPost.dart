@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hanzzan/mainScreenDir/main_screen.dart';
 
 class AddPost extends StatefulWidget {
   final int maxHashtags = 3;
@@ -13,6 +14,17 @@ class _AddPostState extends State<AddPost> {
   int _selectedMinute = 0;
   FixedExtentScrollController _hoursController = FixedExtentScrollController();
   FixedExtentScrollController _minutesController = FixedExtentScrollController();
+
+  TextEditingController _titleController = TextEditingController();
+  String _selectedPlace = '';
+  String _selectedPurpose = '';
+  List<TextEditingController> _hashtagControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _hashtagControllers = List.generate(widget.maxHashtags, (index) => TextEditingController());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +45,7 @@ class _AddPostState extends State<AddPost> {
           children: [
             // 제목 입력 필드
             TextField(
+              controller: _titleController,
               decoration: InputDecoration(
                 labelText: '제목',
                 border: OutlineInputBorder(),
@@ -52,8 +65,9 @@ class _AddPostState extends State<AddPost> {
                 DropdownMenuItem(value: '역전할머니맥주', child: Text('역전할머니맥주')),
               ],
               onChanged: (value) {
-                // 선택한 장소 처리 로직
-                print('선택된 장소: $value');
+                setState(() {
+                  _selectedPlace = value ?? '';
+                });
               },
             ),
             SizedBox(height: 16),
@@ -73,8 +87,9 @@ class _AddPostState extends State<AddPost> {
                 DropdownMenuItem(value: '술', child: Text('술')),
               ],
               onChanged: (value) {
-                // 선택한 목적 처리 로직
-                print('선택된 목적: $value');
+                setState(() {
+                  _selectedPurpose = value ?? '';
+                });
               },
             ),
             SizedBox(height: 11),
@@ -84,6 +99,7 @@ class _AddPostState extends State<AddPost> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.5),
                     child: TextField(
+                      controller: _hashtagControllers[index],
                       maxLength: widget.maxHashtagLength,
                       decoration: InputDecoration(
                         labelText: '# 해시태그 ${index + 1}',
@@ -99,8 +115,19 @@ class _AddPostState extends State<AddPost> {
               child: ElevatedButton(
                 onPressed: () {
                   // 게시물 추가 로직
-                  print('게시물 추가됨');
-                  Navigator.pop(context);
+                  String title = _titleController.text;
+                  String time = "${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}";
+                  List<String> hashtags = _hashtagControllers.map((controller) => controller.text).where((tag) => tag.isNotEmpty).toList();
+
+                  Post newPost = Post(
+                    title: title,
+                    place: _selectedPlace,
+                    time: time,
+                    purpose: _selectedPurpose,
+                    hashtags: hashtags,
+                  );
+
+                  Navigator.pop(context, newPost);
                 },
                 child: Text('게시물 추가'),
                 style: ElevatedButton.styleFrom(
@@ -232,6 +259,22 @@ class _AddPostState extends State<AddPost> {
   void dispose() {
     _hoursController.dispose();
     _minutesController.dispose();
+    _titleController.dispose();
+    _hashtagControllers.forEach((controller) => controller.dispose());
     super.dispose();
   }
 }
+
+class Post {
+  final String title;
+  final String place;
+  final String time;
+  final String purpose;
+  final List<String> hashtags;
+
+  Post({required this.title, required this.place, required this.time, required this.purpose, required this.hashtags});
+}
+
+void main() => runApp(MaterialApp(
+  home: AddPost(),
+));
