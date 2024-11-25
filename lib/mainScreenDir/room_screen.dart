@@ -1,8 +1,5 @@
-// 현재 모임에 참여 중인 사용자들을 보여주는 클래스 입니다.
-// 게시물 클릭 시 이 화면이 나옵니다.
-// 참가하기 버튼을 통해 모임에 참가할 수 있습니다.
-
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RoomScreen extends StatefulWidget {
   @override
@@ -12,6 +9,26 @@ class RoomScreen extends StatefulWidget {
 class _RoomScreenState extends State<RoomScreen> {
   // 참가하기와 나가기 버튼을 구분하는 변수
   bool isJoined = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadJoinStatus();
+  }
+
+  // 참가 상태를 SharedPreferences에서 불러오는 함수
+  Future<void> _loadJoinStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isJoined = prefs.getBool('isJoined') ?? false;
+    });
+  }
+
+  // 참가 상태를 SharedPreferences에 저장하는 함수
+  Future<void> _saveJoinStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isJoined', isJoined);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +69,7 @@ class _RoomScreenState extends State<RoomScreen> {
                       setState(() {
                         isJoined = !isJoined;
                       });
+                      _saveJoinStatus();
                     },
                     child: Text(
                       // 참가하기 버튼을 클릭할 때마다 isJoined 변수가 변경되면서 텍스트가 바뀜.
