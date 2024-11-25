@@ -33,6 +33,9 @@ dependencies:
 
   http: ^0.13.4
 
+  # room_screen에서 사용자의 참가 상태를 그대로 유지시키기 위한 패키지.
+  shared_preferences: ^2.0.6
+
 
 
   # The following adds the Cupertino Icons font to your application.

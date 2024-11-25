@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hanzzan/UserInfo/loginPage/login.dart';
 import 'package:hanzzan/mainScreenDir/profile_screen.dart';
 import 'package:hanzzan/mainScreenDir/addPost/addPost.dart';
+import 'package:hanzzan/mainScreenDir/room_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -77,93 +78,101 @@ class _MainScreenState extends State<MainScreen> {
           itemBuilder: (context, index) {
             final post = _posts[index];
 
-            return Container(
-              height: 200, // 직사각형 비율 5:2 정도로 설정
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20), // 테두리 둥글게 설정
-                image: DecorationImage(
-                  image: AssetImage('assets/ERICA.jpg'), // 이미지 파일 경로
-                  fit: BoxFit.cover, // 이미지를 박스에 맞게 채움
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RoomScreen()),
+                );
+              },
+              child: Container(
+                height: 200, // 직사각형 비율 5:2 정도로 설정
+                width: double.infinity,
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20), // 테두리 둥글게 설정
+                  image: DecorationImage(
+                    image: AssetImage('assets/ERICA.jpg'), // 이미지 파일 경로
+                    fit: BoxFit.cover, // 이미지를 박스에 맞게 채움
+                  ),
                 ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 10, // 좌측 여백
-                    top: 10, // 상단 여백
-                    child: Text(
-                      // 게시물 추가 화면에서 지정한 시간을 표시
-                      post.time,
-                      style: TextStyle(
-                        fontSize: 18, // 조금 작게 설정
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white, // 흰색 텍스트
-                        shadows: [
-                          Shadow(
-                            offset: Offset(1.0, 1.0),
-                            blurRadius: 2.0,
-                            color: Colors.black,
-                          ),
-                        ],
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 10, // 좌측 여백
+                      top: 10, // 상단 여백
+                      child: Text(
+                        // 게시물 추가 화면에서 지정한 시간을 표시
+                        post.time,
+                        style: TextStyle(
+                          fontSize: 18, // 조금 작게 설정
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white, // 흰색 텍스트
+                          shadows: [
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 2.0,
+                              color: Colors.black,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 10, // 하단 여백
-                    left: 20, // 좌측 여백
-                    child: Text(
-                      // 게시물 추가하기 화면에서 지정한 장소를 표시
-                      post.place,
-                      style: TextStyle(
-                        fontSize: 40, // 크게 설정
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white, // 흰색 텍스트
-                        shadows: [
-                          Shadow(
-                            offset: Offset(2.0, 2.0),
-                            blurRadius: 3.0,
-                            color: Colors.black,
-                          ),
-                        ],
+                    Positioned(
+                      bottom: 10, // 하단 여백
+                      left: 20, // 좌측 여백
+                      child: Text(
+                        // 게시물 추가하기 화면에서 지정한 장소를 표시
+                        post.place,
+                        style: TextStyle(
+                          fontSize: 40, // 크게 설정
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white, // 흰색 텍스트
+                          shadows: [
+                            Shadow(
+                              offset: Offset(2.0, 2.0),
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    right: 10, // 우측 여백
-                    top: 10, // 상단 여백
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage('assets/profile.jpg'), // 프로필 이미지 파일 경로
-                      radius: 25,
+                    Positioned(
+                      right: 10, // 우측 여백
+                      top: 10, // 상단 여백
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage('assets/profile.jpg'), // 프로필 이미지 파일 경로
+                        radius: 25,
+                      ),
                     ),
-                  ),
-                  Positioned(
-                    right: 10, // 우측 여백
-                    bottom: 10, // 하단 여백
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: post.hashtags.map((hashtag) {
-                        return Text(
-                          // 게시물 추가하기 화면에서 지정한 헤시태그를 표시
-                          // 헤시태그가 여러개일 경우 자동으로 한개씩 추가됨.
-                          '# $hashtag',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white, // 흰색 텍스트
-                            shadows: [
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 2.0,
-                                color: Colors.black,
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                    Positioned(
+                      right: 10, // 우측 여백
+                      bottom: 10, // 하단 여백
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: post.hashtags.map((hashtag) {
+                          return Text(
+                            // 게시물 추가하기 화면에서 지정한 헤시태그를 표시
+                            // 헤시태그가 여러개일 경우 자동으로 한개씩 추가됨.
+                            '# $hashtag',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white, // 흰색 텍스트
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(1.0, 1.0),
+                                  blurRadius: 2.0,
+                                  color: Colors.black,
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
