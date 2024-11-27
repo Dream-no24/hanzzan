@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hanzzan/mainScreenDir/main_screen.dart';
+import 'package:hanzzan/mainScreenDir/profile_image_edit_screen.dart';
 
 class ProfileEditScreen extends StatelessWidget {
   @override
@@ -57,8 +58,16 @@ class ProfileEditScreen extends StatelessWidget {
                     Icons.person,
                     size: 100,
                   ),
-                  onPressed: () {}, // 프로필 사진 변경 기능은 나중에 구현
-                ),
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileImageEditScreen()),
+                    );
+                    if (result != null) {
+                      // 프로필 이미지가 선택되었으면 이를 반영하는 로직 추가
+                      // 예: setState()를 호출해서 화면 갱신하기
+                    }
+                  },                ),
               ),
 
               SizedBox(height: 30),
