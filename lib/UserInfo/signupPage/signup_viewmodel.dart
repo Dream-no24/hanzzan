@@ -7,7 +7,7 @@ class SignUpViewModel {
   final SignUpRepository _repository = SignUpRepository();
 
   // 사용자 입력 데이터를 관리하는 모델 인스턴스
-  SignUpModel _signUpModel = SignUpModel(email: '', password: '', verificationCode: '');
+  final SignUpModel _signUpModel = SignUpModel(email: '', password: '', verificationCode: '');
   bool isCodeVerified = false;  // 인증 성공 여부를 나타냅니다.
 
   // 이메일 Getter 및 Setter
@@ -24,20 +24,32 @@ class SignUpViewModel {
 
   // 사용자가 입력한 이메일로 인증 코드를 발송하는 메서드
   Future<void> sendVerificationCode() async {
-    await _repository.sendVerificationCode(_signUpModel.email);
+    try {
+      await _repository.sendVerificationCode(_signUpModel.email);
+    } catch (e) {
+      throw Exception('인증번호 발송 실패: ${e.toString()}');
+    }
   }
 
   // 사용자가 입력한 인증 코드를 확인하는 메서드
   Future<void> verifyCode() async {
-    isCodeVerified = await _repository.verifyCode(_signUpModel.email, _signUpModel.verificationCode);
+    try {
+      isCodeVerified = await _repository.verifyCode(_signUpModel.email, _signUpModel.verificationCode);
+    } catch (e) {
+      throw Exception('인증 실패: ${e.toString()}');
+    }
   }
 
   // 사용자가 입력한 정보로 회원가입을 진행하는 메서드
-  Future<void> registerUser() async {
+  Future<void> registerUser(String userId) async {
     if (isCodeVerified) {
-      await _repository.registerUser(_signUpModel.email, _signUpModel.password);
+      try {
+        await _repository.registerUser(userId, _signUpModel.email, _signUpModel.password);
+      } catch (e) {
+        throw Exception('회원가입 실패: ${e.toString()}');
+      }
     } else {
-      throw Exception('인증되지 않았습니다.');
+      throw Exception('이메일 인증이 완료되지 않았습니다. 인증 후 다시 시도하세요.');
     }
   }
 }

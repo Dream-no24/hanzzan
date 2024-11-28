@@ -1,5 +1,3 @@
-// 뷰 파일: signup_view.dart
-// 사용자와 상호작용하는 UI를 제공하는 클래스입니다.
 import 'package:flutter/material.dart';
 import 'signup_viewmodel.dart';
 
@@ -13,6 +11,7 @@ class _SignUpViewState extends State<SignUpView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _userIdController = TextEditingController(); // 사용자 ID 컨트롤러 추가
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +27,15 @@ class _SignUpViewState extends State<SignUpView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // 사용자 ID 입력 필드 추가
+              TextField(
+                controller: _userIdController,
+                decoration: InputDecoration(
+                  labelText: '사용자 ID',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 16),
               // 이메일 입력 필드
               TextField(
                 controller: _emailController,
@@ -77,7 +85,7 @@ class _SignUpViewState extends State<SignUpView> {
                 onPressed: () async {
                   try {
                     await _viewModel.verifyCode();
-                    setState(() {});  // 화면 갱신을 위해 상태 업데이트
+                    setState(() {}); // 화면 갱신을 위해 상태 업데이트
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: _viewModel.isCodeVerified ? Text('인증 성공') : Text('인증 실패')),
                     );
@@ -112,7 +120,7 @@ class _SignUpViewState extends State<SignUpView> {
                 onPressed: _viewModel.isCodeVerified
                     ? () async {
                   try {
-                    await _viewModel.registerUser();
+                    await _viewModel.registerUser(_userIdController.text);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('회원가입 성공')),
                     );
@@ -141,6 +149,7 @@ class _SignUpViewState extends State<SignUpView> {
     _emailController.dispose();
     _codeController.dispose();
     _passwordController.dispose();
+    _userIdController.dispose(); // 추가된 사용자 ID 컨트롤러 해제
     super.dispose();
   }
 }
