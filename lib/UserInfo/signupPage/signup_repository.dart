@@ -6,7 +6,7 @@ import 'dart:convert';
 
 class SignUpRepository {
   // 서버 URL
-  final String _baseUrl = 'http://52.91.27.15';
+  final String _baseUrl = 'http://52.91.27.15:3000/api';
 
   // 사용자의 이메일로 인증번호를 발송하는 메서드
   Future<bool> sendVerificationCode(String email) async {
@@ -54,7 +54,7 @@ class SignUpRepository {
   // 사용자를 등록하는 메서드
   Future<bool> registerUser(String userId, String email, String password) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/login/register'),
+      Uri.parse('$_baseUrl/users/register'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
