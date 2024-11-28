@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hanzzan/mainScreenDir/main_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AddPost extends StatefulWidget {
   final int maxHashtags = 3;
@@ -114,20 +116,7 @@ class _AddPostState extends State<AddPost> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // 게시물 추가 로직
-                  String title = _titleController.text;
-                  String time = "${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}";
-                  List<String> hashtags = _hashtagControllers.map((controller) => controller.text).where((tag) => tag.isNotEmpty).toList();
-
-                  Post newPost = Post(
-                    title: title,
-                    place: _selectedPlace,
-                    time: time,
-                    purpose: _selectedPurpose,
-                    hashtags: hashtags,
-                  );
-
-                  Navigator.pop(context, newPost);
+                  _createMeeting();
                 },
                 child: Text('게시물 추가'),
                 style: ElevatedButton.styleFrom(
@@ -169,7 +158,7 @@ class _AddPostState extends State<AddPost> {
               ],
             ),
             Text(
-              "${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}",
+              "\${_selectedHour.toString().padLeft(2, '0')}:\${_selectedMinute.toString().padLeft(2, '0')}",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -253,6 +242,49 @@ class _AddPostState extends State<AddPost> {
         ),
       ),
     );
+  }
+
+  Future<void> _createMeeting() async {
+    final url = 'http://52.91.27.15:3000/api/thread/create'; // 서버 주소 입력
+
+    // 요청 데이터 구성
+    String title = _titleController.text;
+    String time = "\${_selectedHour.toString().padLeft(2, '0')}:\${_selectedMinute.toString().padLeft(2, '0')}";
+    List<String> hashtags = _hashtagControllers.map((controller) => controller.text).where((tag) => tag.isNotEmpty).toList();
+    String combinedHashtags = hashtags.join(' ');
+
+    Map<String, dynamic> requestBody = {
+      "userId": "ABCDEFG_1",
+      "place": _selectedPlace,
+      "tag": combinedHashtags,
+      "content": _selectedPurpose,
+      "threadtime": time,
+      "maxParticipants": 10 // 예시로 최대 참가자 수 지정
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        print('쓰레드 생성 성공');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+      try {
+        final responseBody = jsonDecode(response.body);
+        print('Response received: $responseBody');
+      } catch (e) {
+        print('Response is not a valid JSON: ${response.body}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
