@@ -17,6 +17,9 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController _passwordController = TextEditingController();
   final SignUpViewModel _viewModel = SignUpViewModel();
 
+  // 서버 URL
+  final String _baseUrl = 'http://52.91.27.15:3000/api';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,6 +72,10 @@ class _LoginViewState extends State<LoginView> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('로그인 성공')),
                     );
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainScreen()),
+                    ); // 로그인 성공 시 메인 화면으로 이동
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('로그인 실패: ${e.toString()}')),
@@ -108,7 +115,7 @@ class _LoginViewState extends State<LoginView> {
   // 로그인 사용자 메서드 구현
   Future<void> _loginUser() async {
     final response = await http.post(
-      Uri.parse('https://your-api-server.com/api/login_user'),
+      Uri.parse('$_baseUrl/users/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -120,6 +127,10 @@ class _LoginViewState extends State<LoginView> {
 
     if (response.statusCode == 200) {
       print('로그인 성공: ${_emailController.text}');
+    } else if (response.statusCode == 400) {
+      throw Exception('로그인 실패: 이메일 또는 비밀번호 오류');
+    } else if (response.statusCode == 401) {
+      throw Exception('로그인 실패: 존재하지 않는 사용자');
     } else {
       throw Exception('로그인 실패: ${response.reasonPhrase}');
     }

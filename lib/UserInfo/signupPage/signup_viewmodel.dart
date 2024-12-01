@@ -41,12 +41,13 @@ class SignUpViewModel {
   }
 
   // 사용자가 입력한 정보로 회원가입을 진행하는 메서드
-  Future<void> registerUser(String userId) async {
+  Future<bool> registerUser(String userId) async {
     if (isCodeVerified) {
       try {
-        await _repository.registerUser(userId, _signUpModel.email, _signUpModel.password);
+        await _repository.registerUser(_signUpModel.email, _signUpModel.password);
+        return true;
       } catch (e) {
-        throw Exception('회원가입 실패: ${e.toString()}');
+        return false;
       }
     } else {
       throw Exception('이메일 인증이 완료되지 않았습니다. 인증 후 다시 시도하세요.');

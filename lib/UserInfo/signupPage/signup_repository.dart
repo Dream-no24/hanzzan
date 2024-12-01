@@ -52,14 +52,14 @@ class SignUpRepository {
   }
 
   // 사용자를 등록하는 메서드
-  Future<bool> registerUser(String userId, String email, String password) async {
+  Future<bool> registerUser(String email, String password) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/users/register'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'userid': userId,
+        'userid': email,
         'email': email,
         'password': password,
       }),
