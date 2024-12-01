@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hanzzan/mainScreenDir/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class AddPost extends StatefulWidget {
   final int maxHashtags = 3;
@@ -14,6 +15,7 @@ class AddPost extends StatefulWidget {
 class _AddPostState extends State<AddPost> {
   int _selectedHour = 0;
   int _selectedMinute = 0;
+  int _maxParticipants = 2; // 최대 참가자 수 초기값
   FixedExtentScrollController _hoursController = FixedExtentScrollController();
   FixedExtentScrollController _minutesController = FixedExtentScrollController();
 
@@ -26,105 +28,144 @@ class _AddPostState extends State<AddPost> {
   void initState() {
     super.initState();
     _hashtagControllers = List.generate(widget.maxHashtags, (index) => TextEditingController());
+    // 현재 시간을 기본값으로 설정
+    DateTime now = DateTime.now();
+    _selectedHour = now.hour;
+    _selectedMinute = now.minute;
+    _hoursController = FixedExtentScrollController(initialItem: _selectedHour);
+    _minutesController = FixedExtentScrollController(initialItem: _selectedMinute);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        backgroundColor: Colors.white,
-        title: Text(
-          '게시물 추가',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus(); // 키보드 외의 부분을 터치하면 키보드 닫힘
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          backgroundColor: Colors.white,
+          title: Text(
+            '게시물 추가',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+          iconTheme: IconThemeData(color: Colors.black),
         ),
-        iconTheme: IconThemeData(color: Colors.black),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 제목 입력 필드
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: '제목',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            // 장소 선택 드롭다운
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: '장소',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                DropdownMenuItem(value: 'A+', child: Text('A+')),
-                DropdownMenuItem(value: '은현동포차', child: Text('은현동포차')),
-                DropdownMenuItem(value: '교반', child: Text('교반')),
-                DropdownMenuItem(value: '역전할머니맥주', child: Text('역전할머니맥주')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _selectedPlace = value ?? '';
-                });
-              },
-            ),
-            SizedBox(height: 16),
-            // 시간 선택 다이얼로그 대신 커스텀 타임 피커
-            _buildTimePicker(),
-            SizedBox(height: 16),
-            // 목적 선택 드롭다운
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: '목적',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                DropdownMenuItem(value: '점심', child: Text('점심')),
-                DropdownMenuItem(value: '저녁', child: Text('저녁')),
-                DropdownMenuItem(value: '간술', child: Text('간술')),
-                DropdownMenuItem(value: '술', child: Text('술')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _selectedPurpose = value ?? '';
-                });
-              },
-            ),
-            SizedBox(height: 11),
-            // 해시태그 입력 필드 (최대 3개, 각 10자 제한)
-            Column(
-              children: List.generate(widget.maxHashtags, (index) =>
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.5),
-                    child: TextField(
-                      controller: _hashtagControllers[index],
-                      maxLength: widget.maxHashtagLength,
-                      decoration: InputDecoration(
-                        labelText: '# 해시태그 ${index + 1}',
-                        border: OutlineInputBorder(),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 제목 입력 필드
+                TextField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    labelText: '제목',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                SizedBox(height: 16),
+                // 장소 선택 드롭다운
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: '장소',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: 'A+', child: Text('A+')),
+                    DropdownMenuItem(value: '은현동포차', child: Text('은현동포차')),
+                    DropdownMenuItem(value: '교반', child: Text('교반')),
+                    DropdownMenuItem(value: '역전할머니맥주', child: Text('역전할머니맥주')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedPlace = value ?? '';
+                    });
+                  },
+                ),
+                SizedBox(height: 16),
+                // 시간 선택 다이얼로그 대신 커스텀 타임 피커
+                _buildTimePicker(),
+                SizedBox(height: 16),
+                // 목적 선택 드롭다운
+                DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: '목적',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: '점심', child: Text('점심')),
+                    DropdownMenuItem(value: '저녁', child: Text('저녁')),
+                    DropdownMenuItem(value: '간술', child: Text('간술')),
+                    DropdownMenuItem(value: '술', child: Text('술')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedPurpose = value ?? '';
+                    });
+                  },
+                ),
+                SizedBox(height: 16),
+                // 최대 인원수 선택 슬라이더
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '최대 인원수',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
                     ),
-                  ),
-              ),
-            ),
-            SizedBox(height: 2),
-            // 게시 버튼
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _createMeeting();
-                },
-                child: Text('게시물 추가'),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    Slider(
+                      value: _maxParticipants.toDouble(),
+                      min: 2,
+                      max: 10,
+                      divisions: 8,
+                      label: '$_maxParticipants명',
+                      onChanged: (value) {
+                        setState(() {
+                          _maxParticipants = value.toInt();
+                        });
+                      },
+                    ),
+                  ],
                 ),
-              ),
+                SizedBox(height: 16),
+                // 해시태그 입력 필드 (최대 3개, 각 10자 제한)
+                Column(
+                  children: List.generate(widget.maxHashtags, (index) =>
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5.5),
+                        child: TextField(
+                          controller: _hashtagControllers[index],
+                          maxLength: widget.maxHashtagLength,
+                          decoration: InputDecoration(
+                            labelText: '# 해시태그 ${index + 1}',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                // 게시 버튼
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _createMeeting();
+                    },
+                    child: Text('게시물 추가'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -158,7 +199,7 @@ class _AddPostState extends State<AddPost> {
               ],
             ),
             Text(
-              "\${_selectedHour.toString().padLeft(2, '0')}:\${_selectedMinute.toString().padLeft(2, '0')}",
+              "${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -183,7 +224,7 @@ class _AddPostState extends State<AddPost> {
   Widget _buildHourPicker() {
     return SizedBox(
       height: 150,
-      width: 60,
+      width: MediaQuery.of(context).size.width * 0.2, // 화면 크기에 비례하도록 수정
       child: ListWheelScrollView.useDelegate(
         controller: _hoursController,
         itemExtent: 50,
@@ -215,7 +256,7 @@ class _AddPostState extends State<AddPost> {
   Widget _buildMinutePicker() {
     return SizedBox(
       height: 150,
-      width: 60,
+      width: MediaQuery.of(context).size.width * 0.2, // 화면 크기에 비례하도록 수정
       child: ListWheelScrollView.useDelegate(
         controller: _minutesController,
         itemExtent: 50,
@@ -249,17 +290,18 @@ class _AddPostState extends State<AddPost> {
 
     // 요청 데이터 구성
     String title = _titleController.text;
-    String time = "\${_selectedHour.toString().padLeft(2, '0')}:\${_selectedMinute.toString().padLeft(2, '0')}";
+    String time = "${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}";
     List<String> hashtags = _hashtagControllers.map((controller) => controller.text).where((tag) => tag.isNotEmpty).toList();
-    String combinedHashtags = hashtags.join(' ');
+    // ' 1qvk4f '로 붙이고, 같은 키로 main screen에서 분할
+    String combinedHashtags = hashtags.join(' 1qvk4f ');
 
     Map<String, dynamic> requestBody = {
-      "userId": "ABCDEFG_1",
+      "userId": "kjkim0905@hanyang.ac.kr",
       "place": _selectedPlace,
       "tag": combinedHashtags,
       "content": _selectedPurpose,
       "threadtime": time,
-      "maxParticipants": 10 // 예시로 최대 참가자 수 지정
+      "maxParticipants": _maxParticipants // 최대 참가자 수 반영
     };
 
     try {
@@ -272,10 +314,29 @@ class _AddPostState extends State<AddPost> {
       );
 
       if (response.statusCode == 200) {
+        // 게시물 추가 성공 시
         print('쓰레드 생성 성공');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('쓰레드 생성 성공: ${jsonDecode(response.body)['threadId']}')),
+        );
+        Navigator.pop(context); // 뒤로 가기 (이전 페이지로 돌아가기)
+      } else if (response.statusCode == 400) {
+        // 필수 필드 누락
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('게시물 추가 실패: 필수 필드가 누락되었습니다.')),
+        );
+      } else if (response.statusCode == 500) {
+        // 서버 오류
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('게시물 추가 실패: 서버 오류 발생')),
+        );
       } else {
-        print('Error: ${response.statusCode}');
+        // 그 외 오류
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('게시물 추가 실패: ${response.statusCode} 오류')),
+        );
       }
+
       try {
         final responseBody = jsonDecode(response.body);
         print('Response received: $responseBody');
@@ -283,7 +344,11 @@ class _AddPostState extends State<AddPost> {
         print('Response is not a valid JSON: ${response.body}');
       }
     } catch (e) {
+      // 네트워크 오류 등 기타 오류 처리
       print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 추가 실패: 네트워크 오류 또는 서버 응답 없음')),
+      );
     }
   }
 

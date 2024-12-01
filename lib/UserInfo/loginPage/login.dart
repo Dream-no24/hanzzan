@@ -22,90 +22,95 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('로그인'),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => MainScreen()),
-            ); // 뒤로가기 버튼 클릭 시 메인 화면으로 이동
-          },
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus(); // 키보드 외의 부분을 터치하면 키보드 닫힘
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('로그인'),
+          centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => MainScreen()),
+              ); // 뒤로가기 버튼 클릭 시 메인 화면으로 이동
+            },
+          ),
         ),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 이메일 입력 필드
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: '이메일',
-                  border: OutlineInputBorder(),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 이메일 입력 필드
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: '이메일',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {},
                 ),
-                onChanged: (value) {},
-              ),
-              SizedBox(height: 16),
-              // 비밀번호 입력 필드
-              TextField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: '비밀번호',
-                  border: OutlineInputBorder(),
+                SizedBox(height: 16),
+                // 비밀번호 입력 필드
+                TextField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: '비밀번호',
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                  onChanged: (value) {},
                 ),
-                obscureText: true,
-                onChanged: (value) {},
-              ),
-              SizedBox(height: 16),
-              // 로그인 버튼
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    await _loginUser();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('로그인 성공')),
-                    );
-                    Navigator.pushReplacement(
+                SizedBox(height: 16),
+                // 로그인 버튼
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _loginUser();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('로그인 성공')),
+                      );
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => MainScreen()),
+                      ); // 로그인 성공 시 메인 화면으로 이동
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('로그인 실패: ${e.toString()}')),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 50),
+                  ),
+                  child: Text('로그인'),
+                ),
+                SizedBox(height: 16),
+                // 회원가입 페이지로 이동 버튼
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MainScreen()),
-                    ); // 로그인 성공 시 메인 화면으로 이동
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('로그인 실패: ${e.toString()}')),
+                      MaterialPageRoute(builder: (context) => SignUpView()),
                     );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                ),
-                child: Text('로그인'),
-              ),
-              SizedBox(height: 16),
-              // 회원가입 페이지로 이동 버튼
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignUpView()),
-                  );
-                },
-                child: Text(
-                  '회원가입이 필요하신가요?',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 16,
-                    decoration: TextDecoration.underline,
+                  },
+                  child: Text(
+                    '회원가입이 필요하신가요?',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
