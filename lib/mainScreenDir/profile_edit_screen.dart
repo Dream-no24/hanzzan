@@ -1,10 +1,16 @@
-// 사용자의 프로필을 수정하는 클래스 입니다.
-
 import 'package:flutter/material.dart';
-import 'package:hanzzan/mainScreenDir/main_screen.dart';
-import 'package:hanzzan/mainScreenDir/profile_image_edit_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ProfileEditScreen extends StatelessWidget {
+class ProfileEditScreen extends StatefulWidget {
+  @override
+  _ProfileEditScreenState createState() => _ProfileEditScreenState();
+}
+
+class _ProfileEditScreenState extends State<ProfileEditScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _profileController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,30 +21,26 @@ class ProfileEditScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // 상단 바: 뒤로가기 버튼, 화면의 이름, 저장하기 버튼을 포함.
               Container(
                 height: 60,
                 color: Colors.grey,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // 뒤로가기 버튼: 변경 중인 내용을 취소하고 프로필 화면으로 돌아감
                     IconButton(
                       icon: Icon(Icons.arrow_back),
                       onPressed: () {
                         Navigator.pop(context);
                       },
                     ),
-                    // 화면의 이름
                     Text(
                       '프로필 수정',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    // 저장하기 버튼: 수정한 내용을 저장하고 프로필 화면으로 돌아감
                     TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
-                        // 저장하기 기능은 나중에 구현
+                        _updateProfile(); // 저장 버튼 클릭 시 프로필 업데이트 호출
+                        print("저장하기 버튼을 클릭하였습니다...");
                       },
                       child: Text(
                         '저장하기',
@@ -48,9 +50,7 @@ class ProfileEditScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               SizedBox(height: 30),
-              // 프로필 사진 변경 버튼
               Container(
                 alignment: Alignment.topCenter,
                 child: IconButton(
@@ -59,19 +59,11 @@ class ProfileEditScreen extends StatelessWidget {
                     size: 100,
                   ),
                   onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProfileImageEditScreen()),
-                    );
-                    if (result != null) {
-                      // 프로필 이미지가 선택되었으면 이를 반영하는 로직 추가
-                      // 예: setState()를 호출해서 화면 갱신하기
-                    }
-                  },                ),
+                    // 프로필 이미지 변경 관련 로직
+                  },
+                ),
               ),
-
               SizedBox(height: 30),
-              // 사용자 이름 변경 칸
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -81,10 +73,9 @@ class ProfileEditScreen extends StatelessWidget {
                       '이름',
                       style: TextStyle(fontSize: 18),
                     ),
-                    // 이름 입력창
                     TextField(
+                      controller: _nameController,
                       keyboardType: TextInputType.text,
-                      autofocus: true,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: '이름을 입력하세요',
@@ -93,9 +84,7 @@ class ProfileEditScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               SizedBox(height: 30),
-              // 자기소개 입력칸
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
@@ -105,11 +94,10 @@ class ProfileEditScreen extends StatelessWidget {
                       '자기소개',
                       style: TextStyle(fontSize: 18),
                     ),
-                    // 자기소개 입력창
                     TextField(
+                      controller: _profileController,
                       keyboardType: TextInputType.text,
                       maxLines: 5,
-                      autofocus: true,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: '자기소개를 입력하세요',
@@ -123,5 +111,57 @@ class ProfileEditScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // 서버와의 통신을 위한 함수. 저장하기 버튼 클릭시 동작함.
+  Future<void> _updateProfile() async {
+    final String url = "http://52.91.27.15:3000/api/users/update";
+    String userId = "tksehdrnf@hanyang.ac.kr"; // 사용자 계정은 id가됨. 지금은 일단 하드코딩으로 해둠.
+                                                // 이부분은 서버에서 id불러와서 저장시키게 해야함.
+    String username = _nameController.text;     // 이름 변경창에 입력한 텍스트가 name이 됨.
+                                                // 근데 어짜피 이름은 서버로 보낼때 계정으로 보낼꺼라서 의미없는 코드임.
+    String userprofile = _profileController.text; // 자기소개 변경창에 입력한 텍스트가 userprofile이 됨.
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: json.encode({
+          "userid": userId,   // userid는 사용자 계정이므로 계정을 보냄
+          "username": userId, // 이름은 사용자 계정이고 이름은 변경하지 않기로 했으므로 얘도 계정을 보냄
+          "userprofile": userprofile, // 화면에서 수정한 userprofile(자기소개 텍스트)를 보냄
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // 성공적으로 업데이트된 경우 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('200.프로필이 성공적으로 업데이트되었습니다.')),
+        );
+        print("프로필이 성공적으로 업데이트 되었습니다...");
+      } else if (response.statusCode == 400){
+        // 서버 오류 처리 - 400 필드누락
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('프로필 업데이트 실패(400필드누락): ${response.reasonPhrase}')),
+        );
+        print("프로필 업데이트에 실패하였습니다.(400 필드누락)");
+      }
+      else if (response.statusCode == 500){
+        // 서버 오류 처리 - 500 서버오류
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('프로필 업데이트 실패(500서버오류): ${response.reasonPhrase}')),
+        );
+        print("프로필 업데이트에 실패하였습니다.(500 서버오류)");
+      }
+
+    } catch (e) {
+      // 네트워크 오류 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+      print("프로필 업데이트에 실패하였습니다. - 네트워크 오류 발생");
+    }
   }
 }
