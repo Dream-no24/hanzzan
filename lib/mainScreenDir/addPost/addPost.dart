@@ -3,13 +3,16 @@ import 'package:hanzzan/mainScreenDir/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'dart:io'; // File? 을 사용하기 위한 import
 
 class AddPost extends StatefulWidget {
   final int maxHashtags = 3;
   final int maxHashtagLength = 10;
 
   final String addPost_email; // 메인 화면에서 전달받은 이메일
-  AddPost({required this.addPost_email});
+  final File? addPost_profileImage; // 메인 화면에서 전달받은 프로필 이미지
+
+  AddPost({required this.addPost_email, required this.addPost_profileImage});
 
   @override
   _AddPostState createState() => _AddPostState();
@@ -27,6 +30,7 @@ class _AddPostState extends State<AddPost> {
   String _selectedPlace = '';
   String _selectedPurpose = '';
   List<TextEditingController> _hashtagControllers = [];
+  File? _main_profileImage; // 메인화면에서 이용하는 프로필 이미지
 
   @override
   void initState() {

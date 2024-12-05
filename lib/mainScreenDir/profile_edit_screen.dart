@@ -1,6 +1,8 @@
+import 'package:hanzzan/mainScreenDir/profile_image_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io'; // File? 을 사용하기 위한 import
 
 class ProfileEditScreen extends StatefulWidget {
   final String profileEdit_email; // 프로필화면에서 전달받은 이메일
@@ -13,6 +15,7 @@ class ProfileEditScreen extends StatefulWidget {
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _profileController = TextEditingController();
+  File? _profileImage; // 프로필 이미지 저장 변수
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +47,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       onPressed: () {
                         _updateProfile(); // 저장 버튼 클릭 시 프로필 업데이트 호출
                         print("저장하기 버튼을 클릭하였습니다...");
+
+                        // 이전 화면으로 돌아가면서 _profileImage를 반환함
+                        Navigator.pop(context, _profileImage);
                       },
                       child: Text(
                         '저장하기',
@@ -56,15 +62,42 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               SizedBox(height: 30),
               Container(
                 alignment: Alignment.topCenter,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.person,
-                    size: 100,
-                  ),
-                  onPressed: () async {
-                    // 프로필 이미지 변경 관련 로직
+                child:
+                // 이미지 버튼을 사용한 프로필 이미지 변경
+                // 이미지 버튼을 사용한 원형 프로필 이미지 변경
+                GestureDetector(
+                  onTap: () async {
+                    // 이미지 수정 화면으로 이동. 만약 이미지를 수정했다면 해당 이미지가 이 화면으로 전달됨.
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileImageEditScreen()),
+                    );
+                    // 반환된 결과를 처리하여 프로필 이미지로 설정
+                    if (result != null && result is File) {
+                      setState(() {
+                        _profileImage = result; // 반환된 이미지를 저장
+                      });
+                    }
                   },
+                  // 이미지를 원모양으로 잘라냄.
+                  child: ClipOval(
+                    child: _profileImage != null
+                        ? Image.file(
+                      _profileImage!,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    )
+                        : Image.asset(
+                      'assets/userImage.png', // 이미지가 설정되어있지 않은 경우 기본 이미지가 나옴.
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
+
+
               ),
               SizedBox(height: 30),
               Container(
