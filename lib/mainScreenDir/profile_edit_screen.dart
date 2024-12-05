@@ -3,6 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProfileEditScreen extends StatefulWidget {
+  final String profileEdit_email; // 프로필화면에서 전달받은 이메일
+  ProfileEditScreen({required this.profileEdit_email});
+
   @override
   _ProfileEditScreenState createState() => _ProfileEditScreenState();
 }
@@ -116,8 +119,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   // 서버와의 통신을 위한 함수. 저장하기 버튼 클릭시 동작함.
   Future<void> _updateProfile() async {
     final String url = "http://52.91.27.15:3000/api/users/update";
-    String userId = "tksehdrnf@hanyang.ac.kr"; // 사용자 계정은 id가됨. 지금은 일단 하드코딩으로 해둠.
-                                                // 이부분은 서버에서 id불러와서 저장시키게 해야함.
+    String userId = widget.profileEdit_email; // 사용자 계정이 id가 됨. 계정은 프로필화면에서 넘겨받은 값임.
     String username = _nameController.text;     // 이름 변경창에 입력한 텍스트가 name이 됨.
                                                 // 근데 어짜피 이름은 서버로 보낼때 계정으로 보낼꺼라서 의미없는 코드임.
     String userprofile = _profileController.text; // 자기소개 변경창에 입력한 텍스트가 userprofile이 됨.

@@ -6,16 +6,21 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProfileScreen extends StatefulWidget {
+  final String profile_email; // 메인 화면에서 전달받은 이메일
+  ProfileScreen({required this.profile_email});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String userId = "tksehdrnf@hanyang.ac.kr"; // 사용자 계정이 id가 됨. 당장은 하드코딩이므로 나중에 변경해야됨.
+  late String userId;               // 사용자 아이디. initstate()를 통해 메인화면으로부터 가져온 계정이 id로 저장됨.
   String userProfile = "안녕하세요."; // 사용자 자기소개 텍스트의 초기 상태
 
   @override
   void initState() {
+    print('로그인한 이메일: ${widget.profile_email}');
+    userId = widget.profile_email; // 메인화면으로부터 가져온 계정이 id로 저자오딤.
     super.initState();
     _fetchUserProfile(); // 사용자 프로필 가져오기
   }
@@ -92,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text(userId),
         backgroundColor: Colors.white,
         centerTitle: true,
         leading: IconButton(
@@ -148,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ProfileEditScreen()),
+                                  builder: (context) => ProfileEditScreen(profileEdit_email: userId)),
                             );
                           },
                           child: Text(
