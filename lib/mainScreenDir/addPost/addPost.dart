@@ -8,11 +8,15 @@ class AddPost extends StatefulWidget {
   final int maxHashtags = 3;
   final int maxHashtagLength = 10;
 
+  final String addPost_email; // 메인 화면에서 전달받은 이메일
+  AddPost({required this.addPost_email});
+
   @override
   _AddPostState createState() => _AddPostState();
 }
 
 class _AddPostState extends State<AddPost> {
+
   int _selectedHour = 0;
   int _selectedMinute = 0;
   int _maxParticipants = 2; // 최대 참가자 수 초기값
@@ -26,6 +30,8 @@ class _AddPostState extends State<AddPost> {
 
   @override
   void initState() {
+
+
     super.initState();
     _hashtagControllers = List.generate(widget.maxHashtags, (index) => TextEditingController());
     // 현재 시간을 기본값으로 설정
@@ -296,7 +302,7 @@ class _AddPostState extends State<AddPost> {
     String combinedHashtags = hashtags.join(' 1qvk4f ');
 
     Map<String, dynamic> requestBody = {
-      "userId": "kjkim0905@hanyang.ac.kr",
+      "writerid": widget.addPost_email, // 사용자 아이디는 메인화면으로부터 전달받은 이메일이 됨.
       "place": _selectedPlace,
       "tag": combinedHashtags,
       "content": _selectedPurpose,
@@ -363,15 +369,16 @@ class _AddPostState extends State<AddPost> {
 }
 
 class Post {
+  final String id;
   final String title;
   final String place;
   final String time;
   final String purpose;
   final List<String> hashtags;
 
-  Post({required this.title, required this.place, required this.time, required this.purpose, required this.hashtags});
+  Post({required this.id, required this.title, required this.place, required this.time, required this.purpose, required this.hashtags});
 }
 
-void main() => runApp(MaterialApp(
-  home: AddPost(),
-));
+//void main() => runApp(MaterialApp(
+  //home: AddPost(),
+//));

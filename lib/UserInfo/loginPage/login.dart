@@ -54,6 +54,8 @@ class _LoginViewState extends State<LoginView> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
+                        // 메인화면과 연결되는 모든 화면에서 사용하는 사용자 아이디(계정)는 여기서 결정됨.
+                        // 즉, 사용자 아이디는 서버로부터 받아오는 것이 아닌 로그인 창에서 내가 입력한 값으로 사용하게됨.
                         builder: (context) => MainScreen(main_email: _emailController.text),
                       ),
                     );
