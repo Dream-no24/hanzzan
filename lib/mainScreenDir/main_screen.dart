@@ -27,11 +27,9 @@ class _MainScreenState extends State<MainScreen> {
   Future<void> _fetchThreads() async {
     try {
       final response = await http.get(Uri.parse('$_baseUrl/thread/list'));
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         List<dynamic> threads = data['thread'] ?? []; // Null일 경우 빈 리스트 처리
-
         setState(() {
           _posts = threads.map((threadData) {
             // 태그 파싱 (' 1qvk4f '로 나눠 태그 리스트를 생성)
@@ -39,7 +37,10 @@ class _MainScreenState extends State<MainScreen> {
                 ? threadData['tag'].toString().split(' 1qvk4f ')
                 : [];
 
+            print("게시물에 표시될 사용자의 계정: ${threadData['userId']}");
+
             return Post(
+              id: threadData['writerid'] ?? '사용자 없음',
               title: threadData['content'] ?? '제목 없음',
               place: threadData['place'] ?? '장소 미지정',
               time: threadData['threadtime'] != null
@@ -70,11 +71,12 @@ class _MainScreenState extends State<MainScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // 게시물 추가 버튼
             IconButton(
               onPressed: () async {
                 final newPost = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddPost()),
+                  MaterialPageRoute(builder: (context) => AddPost(addPost_email: widget.main_email)),
                 );
                 if (newPost != null && newPost is Post) {
                   setState(() {
@@ -188,6 +190,24 @@ class _MainScreenState extends State<MainScreen> {
                         child: CircleAvatar(
                           backgroundImage: AssetImage('assets/profile.jpg'),
                           radius: 25,
+                        ),
+                      ),
+                      Positioned(
+                        right: 50,
+                        top: 70,
+                        child: Text(
+                          post.id,
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1.0, 1.0),
+                                blurRadius: 2.0,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Positioned(
@@ -313,11 +333,12 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 class Post {
+  final String id;
   final String title;
   final String place;
   final String time;
   final String purpose;
   final List<String> hashtags;
 
-  Post({required this.title, required this.place, required this.time, required this.purpose, required this.hashtags});
+  Post({required this.id, required this.title, required this.place, required this.time, required this.purpose, required this.hashtags});
 }
