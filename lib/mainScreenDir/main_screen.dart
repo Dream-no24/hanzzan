@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MainScreen extends StatefulWidget {
+  final String main_email; // 로그인 화면에서 전달받은 이메일
+  MainScreen({required this.main_email});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -14,10 +17,10 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final String _baseUrl = 'http://52.91.27.15:3000/api';
   List<Post> _posts = []; // 게시물의 정보들을 저장하는 리스트
-
   @override
   void initState() {
     super.initState();
+    print('로그인한 이메일: ${widget.main_email}');
     _fetchThreads(); // 초기화 시 서버로부터 쓰레드 목록을 불러옴
   }
 
@@ -87,12 +90,15 @@ class _MainScreenState extends State<MainScreen> {
               '한짠',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
             ),
+
+            //프로필 화면 버튼 (로그인이 필요할 경우 로그인 화면으로 이동.)
             IconButton(
               onPressed: () {
                 if (_isUserLoggedIn()) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfileScreen()),
+                    // 프로필 화면으로 이동하면서 로그인 화면으로부터 전달받은 이메일을 전달함.
+                    MaterialPageRoute(builder: (context) => ProfileScreen(profile_email: widget.main_email)),
                   );
                 } else {
                   Navigator.push(
@@ -219,8 +225,13 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  // 처음 앱 실행 후 프로필 화면으로 들어가면 로그인 창이 나오도록 함.
+  // 로그인 한 후에는 프로필 화면으로 들어갈 수 있음.
   bool _isUserLoggedIn() {
-    return true;
+    // 사용자의 이메일은 로그인 하기 전까지는 ex@hanyang.ac.kr로 기본값으로 저장되어있음.
+    // 이메일이 기본값일 경우 메인화면에서 프로필화면을 누르면 로그인 창이 뜨도록 함.
+    if (widget.main_email == 'ex@hanyang.ac.kr') return false;
+    else return true;
   }
 
   Widget _buildFilterButton(BuildContext context) {
