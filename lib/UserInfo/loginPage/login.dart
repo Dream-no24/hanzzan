@@ -1,7 +1,11 @@
+// 뷰 파일: login_view.dart
+// 사용자와 상호작용하는 UI를 제공하는 로그인 화면 클래스입니다.
 import 'package:flutter/material.dart';
+import '../signupPage/signup_view.dart';
+import '../signupPage/signup_viewmodel.dart';
+import 'package:hanzzan/mainScreenDir/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '/mainScreenDir/main_screen.dart';
 
 class LoginView extends StatefulWidget {
   @override
@@ -11,6 +15,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final SignUpViewModel _viewModel = SignUpViewModel();
   final String _baseUrl = 'http://52.91.27.15:3000/api';
 
   @override
@@ -44,6 +49,8 @@ class _LoginViewState extends State<LoginView> {
                 obscureText: true,
               ),
               SizedBox(height: 16),
+
+              // 로그인 버튼
               ElevatedButton(
                 onPressed: () async {
                   try {
@@ -66,6 +73,25 @@ class _LoginViewState extends State<LoginView> {
                   }
                 },
                 child: Text('로그인'),
+              ),
+              SizedBox(height: 16),
+
+              // 회원가입 페이지로 이동 버튼
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignUpView()),
+                  );
+                },
+                child: Text(
+                  '회원가입이 필요하신가요?',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 16,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
             ],
           ),

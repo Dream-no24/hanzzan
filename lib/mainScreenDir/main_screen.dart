@@ -40,8 +40,7 @@ class _MainScreenState extends State<MainScreen> {
                 ? threadData['tag'].toString().split(' 1qvk4f ')
                 : [];
 
-            print("게시물에 표시될 사용자의 계정: ${threadData['userId']}");
-
+            print("게시물에 표시될 사용자의 계정: ${threadData['threadtime']}");
             return Post(
               id: threadData['writerid'] ?? '사용자 없음',
               title: threadData['content'] ?? '제목 없음',
@@ -82,7 +81,6 @@ class _MainScreenState extends State<MainScreen> {
                   MaterialPageRoute(
                     builder: (context) => AddPost(
                       addPost_email: widget.main_email,
-                      addPost_profileImage: _main_profileImage, // 게시물 추가 화면으로 프로필 이미지 전달
                     ),
                   ),
                 );

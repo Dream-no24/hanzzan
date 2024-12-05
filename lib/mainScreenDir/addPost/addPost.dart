@@ -3,16 +3,14 @@ import 'package:hanzzan/mainScreenDir/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'dart:io'; // File? 을 사용하기 위한 import
 
 class AddPost extends StatefulWidget {
   final int maxHashtags = 3;
   final int maxHashtagLength = 10;
 
   final String addPost_email; // 메인 화면에서 전달받은 이메일
-  final File? addPost_profileImage; // 메인 화면에서 전달받은 프로필 이미지
 
-  AddPost({required this.addPost_email, required this.addPost_profileImage});
+  AddPost({required this.addPost_email});
 
   @override
   _AddPostState createState() => _AddPostState();
@@ -30,7 +28,6 @@ class _AddPostState extends State<AddPost> {
   String _selectedPlace = '';
   String _selectedPurpose = '';
   List<TextEditingController> _hashtagControllers = [];
-  File? _main_profileImage; // 메인화면에서 이용하는 프로필 이미지
 
   @override
   void initState() {
@@ -306,7 +303,7 @@ class _AddPostState extends State<AddPost> {
     String combinedHashtags = hashtags.join(' 1qvk4f ');
 
     Map<String, dynamic> requestBody = {
-      "writerid": widget.addPost_email, // 사용자 아이디는 메인화면으로부터 전달받은 이메일이 됨.
+      "userId": widget.addPost_email, // 사용자 아이디는 메인화면으로부터 전달받은 이메일이 됨.
       "place": _selectedPlace,
       "tag": combinedHashtags,
       "content": _selectedPurpose,
@@ -329,9 +326,12 @@ class _AddPostState extends State<AddPost> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('쓰레드 생성 성공: ${jsonDecode(response.body)['threadId']}')),
         );
+        print('쓰레드 내용물: ${jsonDecode(response.body)}'); // 스레드 내용물 확인용
+
         Navigator.pop(context); // 뒤로 가기 (이전 페이지로 돌아가기)
       } else if (response.statusCode == 400) {
         // 필수 필드 누락
+        print('쓰레드 내용: ${jsonDecode(response.body)}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('게시물 추가 실패: 필수 필드가 누락되었습니다.')),
         );
