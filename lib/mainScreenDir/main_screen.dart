@@ -5,6 +5,7 @@ import 'package:hanzzan/mainScreenDir/addPost/addPost.dart';
 import 'package:hanzzan/mainScreenDir/room_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io'; // File? 을 사용하기 위한 import
 
 class MainScreen extends StatefulWidget {
   final String main_email; // 로그인 화면에서 전달받은 이메일
@@ -17,6 +18,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final String _baseUrl = 'http://52.91.27.15:3000/api';
   List<Post> _posts = []; // 게시물의 정보들을 저장하는 리스트
+  File? _main_profileImage; // 메인화면에서 이용하는 프로필 이미지
+
   @override
   void initState() {
     super.initState();
@@ -37,8 +40,7 @@ class _MainScreenState extends State<MainScreen> {
                 ? threadData['tag'].toString().split(' 1qvk4f ')
                 : [];
 
-            print("게시물에 표시될 사용자의 계정: ${threadData['userId']}");
-
+            print("게시물에 표시될 사용자의 계정: ${threadData['threadtime']}");
             return Post(
               id: threadData['writerid'] ?? '사용자 없음',
               title: threadData['content'] ?? '제목 없음',
@@ -76,7 +78,11 @@ class _MainScreenState extends State<MainScreen> {
               onPressed: () async {
                 final newPost = await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddPost(addPost_email: widget.main_email)),
+                  MaterialPageRoute(
+                    builder: (context) => AddPost(
+                      addPost_email: widget.main_email,
+                    ),
+                  ),
                 );
                 if (newPost != null && newPost is Post) {
                   setState(() {
@@ -95,13 +101,22 @@ class _MainScreenState extends State<MainScreen> {
 
             //프로필 화면 버튼 (로그인이 필요할 경우 로그인 화면으로 이동.)
             IconButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_isUserLoggedIn()) {
-                  Navigator.push(
+                  // ProfileScreen으로 이동하고 결과를 기다림
+                  final result = await Navigator.push(
                     context,
-                    // 프로필 화면으로 이동하면서 로그인 화면으로부터 전달받은 이메일을 전달함.
-                    MaterialPageRoute(builder: (context) => ProfileScreen(profile_email: widget.main_email)),
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(profile_email: widget.main_email),
+                    ),
                   );
+
+                  // 만약 ProfileScreen에서 이미지가 반환되면 이를 사용하여 업데이트
+                  if (result != null && result is File) {
+                    setState(() {
+                      _main_profileImage = result; // 프로필 화면으로부터 반환된 이미지를 프로필 이미지로 설정
+                    });
+                  }
                 } else {
                   Navigator.push(
                     context,

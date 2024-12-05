@@ -4,6 +4,7 @@ import 'package:hanzzan/mainScreenDir/main_screen.dart';
 import 'package:hanzzan/mainScreenDir/profile_edit_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io'; // File? 을 사용하기 위한 import
 
 class ProfileScreen extends StatefulWidget {
   final String profile_email; // 메인 화면에서 전달받은 이메일
@@ -16,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late String userId;               // 사용자 아이디. initstate()를 통해 메인화면으로부터 가져온 계정이 id로 저장됨.
   String userProfile = "안녕하세요."; // 사용자 자기소개 텍스트의 초기 상태
+  File? _profile_profileImage;  // 프로필 화면에서 사용하는 프로필 사진
 
   @override
   void initState() {
@@ -103,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, _profile_profileImage); // 이전 화면으로 _selectedImage를 전달하며 pop
           },
         ),
       ),
@@ -120,11 +122,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.person,
-                          size: 120,
-                          color: Colors.grey,
+                        // 사용자 이미지
+                        ClipOval(
+                          child: _profile_profileImage != null
+                              ? Image.file(
+                            _profile_profileImage!,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          )
+                              : Image.asset(
+                            'assets/userImage.png', // 이미지가 설정되어있지 않은 경우 기본 이미지가 나옴.
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          ),
                         ),
+
                         SizedBox(width: 60),
                         Row(
                           children: [
@@ -149,12 +163,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Container(
                         width: 400,
                         child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            // ProfileEditScreen으로 이동하고 결과를 기다림
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ProfileEditScreen(profileEdit_email: userId)),
+                                builder: (context) => ProfileEditScreen(profileEdit_email: userId),
+                              ),
                             );
+
+                            // 만약 ProfileEditScreen에서 이미지가 반환되면 이를 사용하여 업데이트
+                            if (result != null && result is File) {
+                              setState(() {
+                                _profile_profileImage = result; // 반환된 이미지를 프로필 이미지로 설정
+                              });
+                            }
                           },
                           child: Text(
                             "프로필 수정",
